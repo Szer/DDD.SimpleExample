@@ -7,6 +7,7 @@ using DDD.SimpleExample.ReadSide.Updaters;
 using DDD.SimpleExample.ReadSide.Updaters.Customer;
 using DDD.SimpleExample.ReadSide.Updaters.Project;
 using MassTransit;
+using MassTransit.Builders;
 using MassTransit.Util;
 using SimpleInjector;
 using SimpleInjector.Extensions.ExecutionContextScoping;
@@ -27,7 +28,6 @@ namespace DDD.SimpleExample.ReadSide
         {
             _logger.Info("Creating bus...");
             ConfigureContainer();
-
             _busControl = Bus.Factory.CreateUsingRabbitMq(x =>
             {
                 var host = x.Host(GetHostAddress(), h =>
@@ -40,10 +40,10 @@ namespace DDD.SimpleExample.ReadSide
                 {
                     e.Consumer(() =>
                     {
-                        using (_container.BeginExecutionContextScope())
-                        {
+                        //using (_container.BeginExecutionContextScope())
+                        //{
                             return _container.GetInstance<CustomerUpdater>();
-                        }
+                        //}
                     });
                 });
 
@@ -51,16 +51,16 @@ namespace DDD.SimpleExample.ReadSide
                 {
                     e.Consumer(() =>
                     {
-                        using (_container.BeginExecutionContextScope())
-                        {
+                        //using (_container.BeginExecutionContextScope())
+                        //{
                             return _container.GetInstance<ProjectUpdater>();
-                        }
+                        //}
                     });
                 });
             });
-
+            var observer = new ScopeObserver(_container);
+            var handle = _busControl.ConnectReceiveObserver(observer);
             _logger.Info("Starting bus...");
-
             _busHandle = _busControl.Start();
 
             TaskUtil.Await(() => _busHandle.Ready);
