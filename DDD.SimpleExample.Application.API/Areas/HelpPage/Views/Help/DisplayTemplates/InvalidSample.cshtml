@@ -1,0 +1,13 @@
+@using DDD.SimpleExample.Application.API.Areas.HelpPage
+@model DDD.SimpleExample.Application.API.Areas.HelpPage.SampleGeneration.InvalidSample
+
+@if (HttpContext.Current.IsDebuggingEnabled)
+{
+    <div class="warning-message-container">
+        <p>@Model.ErrorMessage</p>
+    </div>
+}
+else
+{
+    <p>Sample not available.</p>
+}
