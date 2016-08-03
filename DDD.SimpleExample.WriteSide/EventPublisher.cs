@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Configuration;
 using System.Threading.Tasks;
 using DDD.SimpleExample.Common.Events;
 using MassTransit;
-using SimpleInjector;
+using Ninject;
 
 namespace DDD.SimpleExample.WriteSide
 {
@@ -11,14 +10,14 @@ namespace DDD.SimpleExample.WriteSide
     {
         private readonly IBusControl _bus;
 
-        public EventPublisher(Container container)
+        public EventPublisher(StandardKernel container)
         {
-            _bus = container.GetInstance<IBusControl>();
+            _bus = container.Get<IBusControl>();
         }
 
         public async Task PublishAsync(dynamic e)
         {
-            var address = "rabbitmq://localhost/customer_events";
+            var address = "rabbitmq://localhost/events";
             var endpoint = await _bus.GetSendEndpoint(new Uri(address));
             await endpoint.Send(e);
         }

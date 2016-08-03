@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using DDD.SimpleExample.Common.Enums;
-using DDD.SimpleExample.Common.Events;
 using DDD.SimpleExample.Common.Events.Customer;
 using DDD.SimpleExample.ReadSide.Helpers;
 using DDD.SimpleExample.ReadSide.Interfaces;
@@ -31,6 +30,7 @@ namespace DDD.SimpleExample.ReadSide.Updaters.Customer
             };
             _context.Customers.Add(customer);
             await _context.SaveChangesAsync();
+            _context.Dispose();
         }
 
         public async Task Consume(ConsumeContext<ICustomerRenamed> context)

@@ -18,13 +18,13 @@ namespace DDD.SimpleExample.ReadSide
             Database.SetInitializer<ModelContext>(null);
         }
 
-        public DbSet<CustomerModel> Customers { get; set; }
-
-        public DbSet<ProjectModel> Projects { get; set; }
+        public virtual DbSet<CustomerModel> Customers { get; set; }
+        public virtual DbSet<ProjectModel> Projects { get; set; }
+        public virtual DbSet<UserModel> Users { get; set; }
 
         IQueryable<ProjectModel> IModelReader.Projects => Projects.AsNoTracking();
-
         IQueryable<CustomerModel> IModelReader.Customers => Customers.AsNoTracking();
+        IQueryable<UserModel> IModelReader.Users => Users.AsNoTracking();
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

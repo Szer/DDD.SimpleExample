@@ -1,11 +1,10 @@
 ﻿using System;
 using DDD.SimpleExample.Common.Enums;
-using DDD.SimpleExample.Common.Events;
 using DDD.SimpleExample.Common.Events.Project;
 
 namespace DDD.SimpleExample.Domain.Project.Events
 {
-    public class ProjectAdded : IProjectAdded
+    internal class ProjectAdded : IProjectAdded
     {
         public ProjectAdded(Guid id, string name, Guid customerId, ProjectStatus status)
         {

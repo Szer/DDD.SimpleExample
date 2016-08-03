@@ -8,7 +8,7 @@ using MassTransit;
 
 namespace DDD.SimpleExample.ReadSide.Updaters.Project
 {
-    public class ProjectUpdater :
+    internal class ProjectUpdater :
         IConsumer<IProjectAdded>,
         IConsumer<IProjectRenamed>,
         IConsumer<IProjectMarkedAsInActive>
@@ -25,7 +25,8 @@ namespace DDD.SimpleExample.ReadSide.Updaters.Project
             var project = new ProjectModel(context.Message.Id)
             {
                 Name = context.Message.Name,
-                CustomerId = BaseModel.MakeId(typeof(CustomerModel), context.Message.CustomerId)
+                CustomerId = BaseModel.MakeId(typeof(CustomerModel), context.Message.CustomerId),
+                Status = context.Message.Status
             };
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();

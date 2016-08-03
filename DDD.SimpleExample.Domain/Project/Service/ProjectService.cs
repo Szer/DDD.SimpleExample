@@ -1,5 +1,6 @@
 ﻿using System;
 using CommonDomain.Persistence;
+using DDD.SimpleExample.Domain.Project.ValueObjects;
 
 namespace DDD.SimpleExample.Domain.Project.Service
 {
@@ -21,7 +22,7 @@ namespace DDD.SimpleExample.Domain.Project.Service
         public void Rename(Guid projectId, string newName)
         {
             var project = _repository.GetById<ProjectAggregate>(projectId);
-            project.Rename(newName);
+            project.Rename(new ProjectName(newName));
             _repository.Save(project, Guid.NewGuid(), null);
         }
 

@@ -3,7 +3,7 @@ using DDD.SimpleExample.Common;
 
 namespace DDD.SimpleExample.Domain.Project.ValueObjects
 {
-    public class ProjectName : ValueObject<string>
+    internal class ProjectName : ValueObject<string>
     {
         public ProjectName(string name) : base(name)
         {

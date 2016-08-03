@@ -3,7 +3,7 @@ using DDD.SimpleExample.Common;
 
 namespace DDD.SimpleExample.Domain.Customer.ValueObjects
 {
-    public class CustomerName : ValueObject<string>
+    internal class CustomerName : ValueObject<string>
     {
         public CustomerName(string name) : base(name)
         {

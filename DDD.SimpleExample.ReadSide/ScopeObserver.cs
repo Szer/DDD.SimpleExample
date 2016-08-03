@@ -1,53 +1,51 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MassTransit;
-using SimpleInjector;
-using SimpleInjector.Extensions.ExecutionContextScoping;
+using Ninject;
 
 namespace DDD.SimpleExample.ReadSide
 {
     internal class ScopeObserver : IReceiveObserver
     {
-        private readonly Container _container;
-        private Scope _scope;
+        public class ScopeObject { }
 
-        public ScopeObserver(Container container)
+        private readonly StandardKernel _kernel;
+
+        public ScopeObject Current { get; private set; }
+
+        public ScopeObserver(StandardKernel kernel)
         {
-            _container = container;
+            _kernel = kernel;
         }
 
         public Task PreReceive(ReceiveContext context)
         {
-            _scope = _container.BeginExecutionContextScope();
+            Current = new ScopeObject();
             return Task.FromResult(0);
         }
 
         public Task PostReceive(ReceiveContext context)
         {
-            _scope?.Dispose();
-            _scope = null;
+            Current = null;
             return Task.FromResult(0);
         }
 
         public Task PostConsume<T>(ConsumeContext<T> context, TimeSpan duration, string consumerType) where T : class
         {
-            _scope?.Dispose();
-            _scope = null;
+            Current = null;
             return Task.FromResult(0);
         }
 
         public Task ConsumeFault<T>(ConsumeContext<T> context, TimeSpan duration, string consumerType,
             Exception exception) where T : class
         {
-            _scope?.Dispose();
-            _scope = null;
+            Current = null;
             return Task.FromResult(0);
         }
 
         public Task ReceiveFault(ReceiveContext context, Exception exception)
         {
-            _scope?.Dispose();
-            _scope = null;
+            Current = null;
             return Task.FromResult(0);
         }
     }

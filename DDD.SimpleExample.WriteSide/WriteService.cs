@@ -6,22 +6,22 @@ using CommonDomain.Persistence;
 using CommonDomain.Persistence.EventStore;
 using DDD.SimpleExample.Domain;
 using DDD.SimpleExample.Domain.Customer.Service;
-using DDD.SimpleExample.Domain.Project.Service;
-using DDD.SimpleExample.WriteSide.Handlers.Customer;
-using DDD.SimpleExample.WriteSide.Handlers.Project;
 using MassTransit;
 using MassTransit.Util;
-using SimpleInjector;
-using SimpleInjector.Extensions.ExecutionContextScoping;
 using Topshelf;
 using Topshelf.Logging;
+//using MassTransit.SimpleInjectorIntegration;
+using NEventStore;
+using Ninject;
+using Ninject.Activation.Providers;
+using Ninject.Extensions.Conventions;
 
 namespace DDD.SimpleExample.WriteSide
 {
     internal class WriteSide : ServiceControl
     {
         private readonly LogWriter _logger = HostLogger.Get<WriteSide>();
-        private readonly Container _container = new Container();
+        private readonly StandardKernel _kernel = new StandardKernel();
 
         private IBusControl _busControl;
         private BusHandle _busHandle;
@@ -30,7 +30,7 @@ namespace DDD.SimpleExample.WriteSide
         {
             _logger.Info("Creating bus...");
             ConfigureContainer();
-            _busControl = _container.GetInstance<IBusControl>();
+            _busControl = _kernel.Get<IBusControl>();
             _logger.Info("Starting bus...");
             
             _busHandle = _busControl.Start();
@@ -38,6 +38,7 @@ namespace DDD.SimpleExample.WriteSide
             TaskUtil.Await(() => _busHandle.Ready);
 
             return true;
+
         }
 
         public bool Stop(HostControl hostControl)
@@ -51,9 +52,20 @@ namespace DDD.SimpleExample.WriteSide
 
         private void ConfigureContainer()
         {
-            _container.Options.DefaultScopedLifestyle = new ExecutionContextScopeLifestyle();
+            _kernel.Bind(x => x
+                .FromAssemblyContaining<CustomerService>()
+                .SelectAllClasses()
+                .InheritedFrom(typeof(IDomainService))
+                .BindDefaultInterface());
 
-            _container.Register(() => Bus.Factory.CreateUsingRabbitMq(x =>
+            _kernel.Bind(x => x
+                .FromThisAssembly()
+                .IncludingNonePublicTypes()
+                .SelectAllClasses()
+                .InheritedFrom(typeof(IConsumer))
+                .BindToSelf());
+
+            var busControl = Bus.Factory.CreateUsingRabbitMq(x =>
             {
                 var host = x.Host(GetHostAddress(), h =>
                 {
@@ -61,41 +73,26 @@ namespace DDD.SimpleExample.WriteSide
                     h.Password(ConfigurationManager.AppSettings["RabbitMQPassword"]);
                 });
 
-                x.ReceiveEndpoint(host, "customer", e =>
+                x.ReceiveEndpoint(host, "commands", e =>
                 {
-                    e.Consumer(() =>
-                    {
-                        using (_container.BeginExecutionContextScope())
-                        {
-                            return _container.GetInstance<CustomerHandler>();
-                        }
-                    });
+                    e.LoadFrom(_kernel);
                 });
+            });
 
-                x.ReceiveEndpoint(host, "project", e =>
-                {
-                    e.Consumer(() =>
-                    {
-                        using (_container.BeginExecutionContextScope())
-                        {
-                            return _container.GetInstance<ProjectHandler>();
-                        }
-                    });
-                });
-            }), Lifestyle.Singleton);
+            _kernel.Bind<IBusControl>()
+                .ToConstant(busControl)
+                .InSingletonScope();
 
-            _container.Register(() => EventStoreConfig.Create(_container), Lifestyle.Singleton);
+            _kernel.Bind<IBus>()
+                .ToProvider(new CallbackProvider<IBus>(x => x.Kernel.Get<IBusControl>()));
 
-            _container.Register<IDetectConflicts, ConflictDetector>(Lifestyle.Scoped);
-            _container.Register<IRepository, EventStoreRepository>(Lifestyle.Scoped);
-            _container.Register<IConstructAggregates, AggregateFactory>(Lifestyle.Scoped);
+            _kernel.Bind<IStoreEvents>()
+                .ToMethod(context => EventStoreConfig.Create(_kernel))
+                .InSingletonScope();
 
-            _container.Register<IProjectService, ProjectService>();
-            _container.Register<ICustomerService, CustomerService>();
-
-            _container.Register<CustomerHandler>();
-            _container.Register<ProjectHandler>();
-            _container.Verify();
+            _kernel.Bind<IDetectConflicts>().To<ConflictDetector>();
+            _kernel.Bind<IRepository>().To<EventStoreRepository>();
+            _kernel.Bind<IConstructAggregates>().To<AggregateFactory>();
         }
 
         static Uri GetHostAddress()

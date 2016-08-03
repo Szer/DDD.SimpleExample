@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web.Http;
+﻿using System.Web.Http;
+using DDD.SimpleExample.Application.API.Helpers;
 
 namespace DDD.SimpleExample.Application.API
 {
@@ -10,7 +8,7 @@ namespace DDD.SimpleExample.Application.API
         public static void Register(HttpConfiguration config)
         {
             // Web API configuration and services
-
+            config.Formatters.Add(new BrowserJsonFormatter());
             // Web API routes
             config.MapHttpAttributeRoutes();
 

@@ -4,7 +4,7 @@ using DDD.SimpleExample.Common.Events.Customer;
 
 namespace DDD.SimpleExample.Domain.Customer.Events
 {
-    public class CustomerAdded : ICustomerAdded
+    internal class CustomerAdded : ICustomerAdded
     {
         public CustomerAdded(Guid id, string name, CustomerStatus status)
         {

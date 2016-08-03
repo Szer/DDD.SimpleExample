@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using RestSharp;
+using RestSharp.Authenticators;
 
 namespace DDD.SimpleExample.ConsoleClient
 {
@@ -15,28 +9,90 @@ namespace DDD.SimpleExample.ConsoleClient
     {
         static void Main(string[] args)
         {
-            PostCustomerAsync().Wait();
+            //PostCustomerAsync().Wait();
+            var guid = new Guid("352d0f45-4f5d-4bc5-8690-165879877a6d");
+            PostProjectAsync(guid).Wait();
+            //MakeCustomerInactiveAsync(guid).Wait();
+            //RenameProjectAsync(new Guid("a163e89c-685d-482b-9063-a41874cf204f"), "FunnyOne").Wait();
         }
 
         static async Task PostCustomerAsync()
         {
-            using (var handler = new HttpClientHandler {UseDefaultCredentials = true})
-            using (var client = new HttpClient(handler))
+            var restClient = new RestClient("http://localhost:45396/")
             {
-                client.BaseAddress = new Uri("http://localhost:45396/");
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                Authenticator = new NtlmAuthenticator()
+            };
+            var request = new RestRequest("api/customer", Method.POST);
+            request.AddParameter("Id", Guid.NewGuid());
+            request.AddParameter("Name", "NewOne");
+            var response = await restClient.ExecuteTaskAsync(request);
+            Console.WriteLine(response.Content);
+            Console.ReadKey();
+        }
 
-                var gizmo = new {Id = Guid.NewGuid().ToString(), Name = "Super"};
-                var gizmoJson = JsonConvert.SerializeObject(gizmo, Formatting.Indented);
-                var contentPost = new StringContent(gizmoJson, Encoding.UTF8, "application/json");
-                var response = await client.PostAsync("api/customer", contentPost);
-                if (response.IsSuccessStatusCode)
-                {
-                    // Get the URI of the created resource.
-                    Uri gizmoUrl = response.Headers.Location;
-                }
-            }
+        static async Task PostProjectAsync(Guid customerId)
+        {
+            var restClient = new RestClient("http://localhost:45396/")
+            {
+                Authenticator = new NtlmAuthenticator()
+            };
+            var request = new RestRequest("api/project", Method.POST);
+            request.AddParameter("ProjectId", Guid.NewGuid());
+            request.AddParameter("CustomerId", customerId);
+            request.AddParameter("Name", "NewProject");
+            var response = await restClient.ExecuteTaskAsync(request);
+            Console.WriteLine(response.Content);
+            Console.ReadKey();
+        }
+
+        static async Task RenameCustomerAsync(Guid id, string newName)
+        {
+            var restClient = new RestClient("http://localhost:45396/")
+            {
+                Authenticator = new NtlmAuthenticator()
+            };
+            var request = new RestRequest($"api/customer/{id.ToString()}/name", Method.POST);
+            request.AddParameter("NewName", newName);
+            var response = await restClient.ExecuteTaskAsync(request);
+            Console.WriteLine(response.Content);
+            Console.ReadKey();
+        }
+
+        static async Task RenameProjectAsync(Guid id, string newName)
+        {
+            var restClient = new RestClient("http://localhost:45396/")
+            {
+                Authenticator = new NtlmAuthenticator()
+            };
+            var request = new RestRequest($"api/project/{id.ToString()}/name", Method.POST);
+            request.AddParameter("NewName", newName);
+            var response = await restClient.ExecuteTaskAsync(request);
+            Console.WriteLine(response.Content);
+            Console.ReadKey();
+        }
+
+        static async Task MakeCustomerInactiveAsync(Guid id)
+        {
+            var restClient = new RestClient("http://localhost:45396/")
+            {
+                Authenticator = new NtlmAuthenticator()
+            };
+            var request = new RestRequest($"api/customer/{id.ToString()}/makeinactive", Method.POST);
+            var response = await restClient.ExecuteTaskAsync(request);
+            Console.WriteLine(response.Content);
+            Console.ReadKey();
+        }
+
+        static async Task MakeProjectInactiveAsync(Guid id)
+        {
+            var restClient = new RestClient("http://localhost:45396/")
+            {
+                Authenticator = new NtlmAuthenticator()
+            };
+            var request = new RestRequest($"api/project/{id.ToString()}/makeinactive", Method.POST);
+            var response = await restClient.ExecuteTaskAsync(request);
+            Console.WriteLine(response.Content);
+            Console.ReadKey();
         }
     }
 }

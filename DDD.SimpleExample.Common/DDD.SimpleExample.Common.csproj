@@ -49,10 +49,15 @@
     <Compile Include="Commands\Project\IAddProjectToCustomer.cs" />
     <Compile Include="Commands\Project\IMakeProjectInActive.cs" />
     <Compile Include="Commands\Project\IRenameProject.cs" />
+    <Compile Include="Commands\User\IAddUser.cs" />
+    <Compile Include="Commands\User\IAssignUserToProject.cs" />
+    <Compile Include="Commands\User\IDemoteUser.cs" />
+    <Compile Include="Commands\User\IPromoteUser.cs" />
     <Compile Include="DTOs\Customer.cs" />
     <Compile Include="DTOs\Project.cs" />
     <Compile Include="Enums\CustomerStatus.cs" />
     <Compile Include="Enums\ProjectStatus.cs" />
+    <Compile Include="Enums\UserRole.cs" />
     <Compile Include="Events\Customer\ICustomerAdded.cs" />
     <Compile Include="Events\Customer\ICustomerMarkedAdInActive.cs" />
     <Compile Include="Events\Customer\ICustomerRenamed.cs" />
@@ -63,7 +68,15 @@
     <Compile Include="Events\Project\IProjectAdded.cs" />
     <Compile Include="Events\Project\IProjectMarkedAsInActive.cs" />
     <Compile Include="Events\Project\IProjectRenamed.cs" />
+    <Compile Include="Events\UserAdded\IUserAdded.cs" />
+    <Compile Include="Events\UserAdded\IUserAssignedToProject.cs" />
+    <Compile Include="Events\UserAdded\IUserDemoted.cs" />
+    <Compile Include="Events\UserAdded\IUserPromoted.cs" />
     <Compile Include="NonEmptyIdentity.cs" />
+    <Compile Include="Queries\Customer\IGetAllCustomers.cs" />
+    <Compile Include="Queries\Customer\IGetCustomer.cs" />
+    <Compile Include="Queries\Project\IGetAllProjects.cs" />
+    <Compile Include="Queries\Project\IGetProject.cs" />
     <Compile Include="ValueObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

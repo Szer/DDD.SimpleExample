@@ -64,6 +64,15 @@
     <Compile Include="Project\ValueObjects\ProjectName.cs" />
     <Compile Include="Project\ValueObjects\ProjectState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="User\Events\UserAdded.cs" />
+    <Compile Include="User\Events\UserAssignedToProject.cs" />
+    <Compile Include="User\Events\UserDemoted.cs" />
+    <Compile Include="User\Events\UserPromoted.cs" />
+    <Compile Include="User\Service\IUserService.cs" />
+    <Compile Include="User\Service\UserService.cs" />
+    <Compile Include="User\UserAggregate.cs" />
+    <Compile Include="User\ValueObjects\UserName.cs" />
+    <Compile Include="User\ValueObjects\UserState.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

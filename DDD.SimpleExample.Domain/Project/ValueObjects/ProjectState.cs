@@ -4,7 +4,7 @@ using DDD.SimpleExample.Domain.Customer.ValueObjects;
 
 namespace DDD.SimpleExample.Domain.Project.ValueObjects
 {
-    public class ProjectState
+    internal class ProjectState
     {
         public NonEmptyIdentity Id { get; set; }
         public NonEmptyIdentity CustomerId { get; set; }

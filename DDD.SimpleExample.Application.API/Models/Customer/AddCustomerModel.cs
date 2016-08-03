@@ -1,11 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace DDD.SimpleExample.Application.API.Models
+namespace DDD.SimpleExample.Application.API.Models.Customer
 {
-    public class AddCustomerRequest
+    public class AddCustomerModel
     {
-        public Guid AddCustomerRequestId { get; set; }
+        public Guid CommandId { get; set; }
 
         [Required]
         public Guid Id { get; set; }

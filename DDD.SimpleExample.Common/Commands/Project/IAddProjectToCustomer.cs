@@ -8,6 +8,6 @@ namespace DDD.SimpleExample.Common.Commands.Project
 
         string Name { get; }
 
-        Guid CustomerGuid { get; }
+        Guid CustomerId { get; }
     }
 }

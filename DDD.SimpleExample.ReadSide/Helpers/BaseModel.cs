@@ -6,6 +6,10 @@ namespace DDD.SimpleExample.ReadSide.Helpers
     {
         public string Id { get; set; }
 
+        protected BaseModel()
+        {
+        }
+
         protected BaseModel(Guid id)
         {
             Id = MakeId(GetType(), id);

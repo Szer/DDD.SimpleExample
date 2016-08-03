@@ -3,7 +3,7 @@ using DDD.SimpleExample.Common.Events.Customer;
 
 namespace DDD.SimpleExample.Domain.Customer.Events
 {
-    public class CustomerRenamed : ICustomerRenamed
+    internal class CustomerRenamed : ICustomerRenamed
     {
         public CustomerRenamed(Guid id, string newName, string oldName)
         {

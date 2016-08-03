@@ -7,6 +7,10 @@ namespace DDD.SimpleExample.ReadSide.Models
 {
     public class CustomerModel : BaseModel
     {
+        private CustomerModel()
+        {
+        }
+
         public CustomerModel(Guid id) : base(id)
         {
         }

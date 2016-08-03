@@ -2,9 +2,10 @@
 
 namespace DDD.SimpleExample.Application.API.Models
 {
-    public class AddCustomerResult
+    public class PostResult<T>
     {
-        public Guid AddCustomerRequestId { get; set; }
+        public string CommandName => nameof(T);
+        public Guid CommandId { get; set; }
         public DateTime Timestamp { get; set; }
     }
 }

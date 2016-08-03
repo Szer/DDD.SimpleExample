@@ -1,12 +1,12 @@
 ﻿using NEventStore;
 using NEventStore.Persistence.Sql.SqlDialects;
-using SimpleInjector;
+using Ninject;
 
 namespace DDD.SimpleExample.WriteSide
 {
     public static class EventStoreConfig
     {
-        public static IStoreEvents Create(Container container)
+        public static IStoreEvents Create(StandardKernel container)
         {
             var store = Wireup.Init()
                 .LogToOutputWindow()
@@ -19,12 +19,6 @@ namespace DDD.SimpleExample.WriteSide
                 .UsingSynchronousDispatchScheduler()
                 .DispatchTo(new InternalDispatcher(new EventPublisher(container)))
                 .Build();
-
-            //var client = new PollingClient(store.Advanced);
-            //var observer = client.ObserveFrom();
-
-            //var publisher = new EventPublisher(container);
-            //var sub = observer.Subscribe(publisher);
             return store;
         }
     }

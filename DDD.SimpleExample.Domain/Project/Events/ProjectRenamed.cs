@@ -1,10 +1,9 @@
 ﻿using System;
-using DDD.SimpleExample.Common.Events;
 using DDD.SimpleExample.Common.Events.Project;
 
 namespace DDD.SimpleExample.Domain.Project.Events
 {
-    public class ProjectRenamed : IProjectRenamed
+    internal class ProjectRenamed : IProjectRenamed
     {
         public ProjectRenamed(Guid id, string newName, string oldName)
         {

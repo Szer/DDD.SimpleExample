@@ -4,11 +4,11 @@ using DDD.SimpleExample.Common.Enums;
 
 namespace DDD.SimpleExample.Domain.Customer.ValueObjects
 {
-    public class CustomerState
+    internal class CustomerState
     {
         public NonEmptyIdentity Id { get; set; }
         public CustomerStatus Status { get; set; }
         public CustomerName Name { get; set; }
-        public List<NonEmptyIdentity> ProjectIdsIdentities { get; set; } = new List<NonEmptyIdentity>();
+        public List<NonEmptyIdentity> ProjectIds { get; set; } = new List<NonEmptyIdentity>();
     }
 }

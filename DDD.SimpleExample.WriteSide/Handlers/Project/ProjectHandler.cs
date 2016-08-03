@@ -22,7 +22,7 @@ namespace DDD.SimpleExample.WriteSide.Handlers.Project
             await Task.Run(() => _service.AddProjectToCustomer(
                 context.Message.Id,
                 context.Message.Name,
-                context.Message.CustomerGuid));
+                context.Message.CustomerId));
         }
 
         public async Task Consume(ConsumeContext<IMakeProjectInActive> context)

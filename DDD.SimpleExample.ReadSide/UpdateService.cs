@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Configuration;
-using System.Reflection;
-using DDD.SimpleExample.Common.Events;
+using AutoMapper;
 using DDD.SimpleExample.ReadSide.Interfaces;
-using DDD.SimpleExample.ReadSide.Updaters;
-using DDD.SimpleExample.ReadSide.Updaters.Customer;
-using DDD.SimpleExample.ReadSide.Updaters.Project;
 using MassTransit;
-using MassTransit.Builders;
 using MassTransit.Util;
-using SimpleInjector;
-using SimpleInjector.Extensions.ExecutionContextScoping;
+using Ninject;
+using Ninject.Extensions.Conventions;
+using Ninject.Extensions.NamedScope;
 using Topshelf;
 using Topshelf.Logging;
 
@@ -19,7 +15,7 @@ namespace DDD.SimpleExample.ReadSide
     internal class UpdateService : ServiceControl
     {
         private readonly LogWriter _logger = HostLogger.Get<UpdateService>();
-        private readonly Container _container = new Container();
+        private readonly StandardKernel _kernel = new StandardKernel();
 
         private IBusControl _busControl;
         private BusHandle _busHandle;
@@ -36,30 +32,19 @@ namespace DDD.SimpleExample.ReadSide
                     h.Password(ConfigurationManager.AppSettings["RabbitMQPassword"]);
                 });
 
-                x.ReceiveEndpoint(host, "customer_events", e =>
+                x.ReceiveEndpoint(host, "events", e =>
                 {
-                    e.Consumer(() =>
-                    {
-                        //using (_container.BeginExecutionContextScope())
-                        //{
-                            return _container.GetInstance<CustomerUpdater>();
-                        //}
-                    });
+                    e.LoadFrom(_kernel);
                 });
 
-                x.ReceiveEndpoint(host, "project_events", e =>
+                x.ReceiveEndpoint(host, "requests", e =>
                 {
-                    e.Consumer(() =>
-                    {
-                        //using (_container.BeginExecutionContextScope())
-                        //{
-                            return _container.GetInstance<ProjectUpdater>();
-                        //}
-                    });
+                    e.LoadFrom(_kernel);
                 });
             });
-            var observer = new ScopeObserver(_container);
-            var handle = _busControl.ConnectReceiveObserver(observer);
+
+            var observer = _kernel.Get<ScopeObserver>();
+            _busControl.ConnectReceiveObserver(observer);
             _logger.Info("Starting bus...");
             _busHandle = _busControl.Start();
 
@@ -79,12 +64,25 @@ namespace DDD.SimpleExample.ReadSide
 
         private void ConfigureContainer()
         {
-            _container.Options.DefaultScopedLifestyle = new ExecutionContextScopeLifestyle();
-            //_container.RegisterCollection(typeof(IEventHandler<>), Assembly.GetAssembly(typeof(CustomerUpdater)));
-            _container.Register<IModelUpdater, ModelContext>(Lifestyle.Scoped);
-            _container.Register<CustomerUpdater>();
-            _container.Register<ProjectUpdater>();
-            _container.Verify();
+            _kernel.Bind<StandardKernel>().ToConstant(_kernel).InSingletonScope();
+            _kernel.Bind<ScopeObserver>().ToSelf().InThreadScope();
+            _kernel.Bind<IMapper>().ToConstant(MapConfig.CreateMapper()).InSingletonScope();
+            _kernel.Bind<IModelUpdater>().To<ModelContext>().InScope(context =>
+            {
+                var scopeObserver = context.Kernel.Get<ScopeObserver>();
+                return scopeObserver.Current;
+            });
+            _kernel.Bind<IModelReader>().To<ModelContext>().InScope(context =>
+            {
+                var scopeObserver = context.Kernel.Get<ScopeObserver>();
+                return scopeObserver.Current;
+            });
+            _kernel.Bind(x => x
+                .FromThisAssembly()
+                .IncludingNonePublicTypes()
+                .SelectAllClasses()
+                .InheritedFrom(typeof(IConsumer))
+                .BindToSelf());
         }
 
         static Uri GetHostAddress()

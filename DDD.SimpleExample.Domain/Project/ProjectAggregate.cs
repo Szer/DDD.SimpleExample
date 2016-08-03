@@ -2,7 +2,7 @@
 using CommonDomain.Core;
 using DDD.SimpleExample.Common;
 using DDD.SimpleExample.Common.Enums;
-using DDD.SimpleExample.Common.Events.Project;
+using DDD.SimpleExample.Domain.Customer.Events;
 using DDD.SimpleExample.Domain.Project.ValueObjects;
 using ProjectAdded = DDD.SimpleExample.Domain.Project.Events.ProjectAdded;
 using ProjectMarkedAsInActive = DDD.SimpleExample.Domain.Project.Events.ProjectMarkedAsInActive;
@@ -39,7 +39,7 @@ namespace DDD.SimpleExample.Domain.Project
                 new NonEmptyIdentity(customerId));
         }
 
-        public void Rename(string newName)
+        public void Rename(ProjectName newName)
         {
             if (_state.Status == ProjectStatus.InActive)
             {
@@ -50,6 +50,10 @@ namespace DDD.SimpleExample.Domain.Project
 
         public void MakeInActive()
         {
+            if (_state.Status == ProjectStatus.InActive)
+            {
+                throw new InvalidOperationException("Project is inactive");
+            }
             RaiseEvent(new ProjectMarkedAsInActive(Id));
         }
 

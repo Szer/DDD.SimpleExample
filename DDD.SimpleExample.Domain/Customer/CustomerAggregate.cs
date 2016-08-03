@@ -47,18 +47,26 @@ namespace DDD.SimpleExample.Domain.Customer
 
         public void MakeInActive()
         {
-            RaiseEvent(new CustomerMarkedAsInActive(Id));
+            if (_state.Status == CustomerStatus.InActive)
+            {
+                throw new InvalidOperationException("CustomerAggregate is inactive");
+            }
 
-            foreach (var identity in _state.ProjectIdsIdentities)
+            RaiseEvent(new CustomerMarkedAsInActive(Id));
+            foreach (var identity in _state.ProjectIds)
             {
                 RaiseEvent(new ProjectMarkedAsInActive(identity));
             }
         }
 
-        public void AddProjectAssociation(NonEmptyIdentity projectId)
-        {
-            RaiseEvent(new ProjectAddedToCustomer(projectId, Id));
-        }
+        //public void AddProjectAssociation(NonEmptyIdentity projectId)
+        //{
+        //    if (_state.Status == CustomerStatus.InActive)
+        //    {
+        //        throw new InvalidOperationException("CustomerAggregate is inactive");
+        //    }
+        //    RaiseEvent(new ProjectAddedToCustomer(projectId, Id));
+        //}
 
         private void Apply(CustomerAdded @event)
         {
@@ -82,7 +90,7 @@ namespace DDD.SimpleExample.Domain.Customer
 
         private void Apply(ProjectAddedToCustomer @event)
         {
-            _state.ProjectIdsIdentities.Add(new NonEmptyIdentity(@event.ProjectId));
+            _state.ProjectIds.Add(new NonEmptyIdentity(@event.ProjectId));
         }
     }
 }
